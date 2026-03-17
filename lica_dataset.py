@@ -169,13 +169,13 @@ class LicaDataset:
 
     def get_layout(self, layout_id: str) -> dict:
         """
-        Load and return the full layout JSON for a given ID.
+        Load and return the layout JSON for a given ID.
 
         The returned dict contains:
-        - ``layout_config`` — the rendering specification (components, style,
-          duration)
-        - ``layout_metadata`` — canvas dimensions as plain strings
-        - ``render_url`` — public URL of the rendered PNG
+        - ``components`` — flat list of TEXT, IMAGE, or GROUP elements
+        - ``background`` — CSS color string
+        - ``width`` / ``height`` — canvas size (e.g. ``"1920px"``)
+        - ``duration`` — slide duration in seconds
 
         Parameters
         ----------
@@ -193,20 +193,6 @@ class LicaDataset:
             raise FileNotFoundError(f"Layout JSON not found: {path}")
         with path.open(encoding="utf-8") as fh:
             return json.load(fh)
-
-    def get_layout_config(self, layout_id: str) -> dict:
-        """
-        Load and return only the ``layout_config`` portion of a layout.
-
-        This is the rendering-relevant part containing ``components``,
-        ``style``, and ``duration``.
-
-        Parameters
-        ----------
-        layout_id:
-            The layout ID.
-        """
-        return self.get_layout(layout_id)["layout_config"]
 
     def get_annotation(self, layout_id: str) -> dict:
         """
@@ -270,17 +256,6 @@ class LicaDataset:
         """
         template_id = self._resolve_template_id(layout_id)
         return self._root / "images" / template_id / f"{layout_id}.png"
-
-    def get_render_url(self, layout_id: str) -> str:
-        """
-        Return the public render URL for a layout (from its JSON).
-
-        Parameters
-        ----------
-        layout_id:
-            The layout ID.
-        """
-        return self.get_layout(layout_id)["render_url"]
 
     def get_metadata(self, layout_id: str) -> dict:
         """

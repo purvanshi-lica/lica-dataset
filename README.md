@@ -1,8 +1,29 @@
 # LICA Dataset
 
-The **LICA dataset** is a collection of graphic design layouts, released to promote research in the field of AI for Design. Each layout captures the complete rendering specification of a design — component tree, typography, images, and background — alongside rich natural-language annotations at both the layout and template level.
+The **LICA dataset** is a collection of graphic design layouts, released to 
+promote research in the field of AI for Design. Each layout captures the complete rendering specification of a design — component positions, typography, images, and background — alongside rich natural-language annotations at both the layout and template level.
 
 Layouts are organized by **template**: a template is a design theme that can produce multiple layout variations (slides). Each template folder contains all of its layouts, rendered images, and per-layout annotations.
+
+## Getting started
+
+1. Download the `lica-data` folder (link to download soon) and place it in the root of this repository so the structure looks like:
+
+```
+lica-dataset/
+├── lica-data/          # <-- place here
+├── lica_dataset.py
+├── requirements.txt
+└── README.md
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Python 3.9 or later is required.
 
 ## Dataset structure
 
@@ -35,38 +56,29 @@ lica-data/
 
 ### Layout JSON (`layouts/<template_id>/<layout_id>.json`)
 
-Each layout file contains three top-level keys:
+Each layout file is a flat JSON object with the canvas specification and a list of components:
 
 ```json
 {
-  "layout_config": {
-    "components": [ ... ],
-    "style": {
-      "background": "rgb(252, 252, 252)",
-      "width": "1920px",
-      "height": "1080px"
-    },
-    "duration": 3
-  },
-  "layout_metadata": {
-    "width": "1920",
-    "height": "1080"
-  },
-  "render_url": "https://storage.googleapis.com/lica-ml/lica-public-dataset/renders/<layout_id>.png"
+  "components": [ ... ],
+  "background": "rgb(252, 252, 252)",
+  "width": "1920px",
+  "height": "1080px",
+  "duration": 3
 }
 ```
 
-| Field | Description |
-|---|---|
-| `layout_config.components` | Nested tree of rendering components (see below) |
-| `layout_config.style` | Canvas-level style: `background`, `width`, `height` |
-| `layout_config.duration` | Slide duration in seconds |
-| `layout_metadata` | Canvas dimensions as plain strings |
-| `render_url` | Public URL of the rendered PNG |
+| Field | Type | Description |
+|---|---|---|
+| `components` | array | Ordered list of rendering components (see below) |
+| `background` | string | CSS color for the canvas background |
+| `width` | string | Canvas width with `"px"` suffix |
+| `height` | string | Canvas height with `"px"` suffix |
+| `duration` | number | Slide duration in seconds |
 
 #### Component types
 
-Components live in the `layout_config.components` array. Each component has a `type` and a `style` object with CSS-like positioning and visual properties.
+Each component has a `type` field and CSS-like positioning/visual properties directly on the object.
 
 **`TEXT`** — positioned text element
 
@@ -74,16 +86,17 @@ Components live in the `layout_config.components` array. Each component has a `t
 {
   "type": "TEXT",
   "text": "Hello World",
-  "style": {
-    "left": "108px", "top": "200px", "width": "400px", "height": "50px",
-    "position": "absolute",
-    "color": "rgb(255, 255, 255)",
-    "fontSize": "48px",
-    "fontFamily": "League Spartan--400",
-    "fontWeight": "400",
-    "textAlign": "center",
-    "lineHeight": "52px"
-  }
+  "left": "108px", "top": "200px", "width": "400px", "height": "50px",
+  "color": "rgb(255, 255, 255)",
+  "fontSize": "48px",
+  "fontFamily": "League Spartan--400",
+  "fontWeight": "400",
+  "textAlign": "center",
+  "lineHeight": "52px",
+  "letterSpacing": "0em",
+  "textTransform": "none",
+  "fontStyle": "normal",
+  "transform": "none"
 }
 ```
 
@@ -93,28 +106,23 @@ Components live in the `layout_config.components` array. Each component has a `t
 {
   "type": "IMAGE",
   "src": "https://storage.googleapis.com/lica-video/<uuid>.png",
-  "alt": "Description of the image",
-  "style": {
-    "left": "0px", "top": "0px", "width": "1920px", "height": "1080px",
-    "position": "absolute",
-    "opacity": 0.25
-  }
+  "left": "0px", "top": "0px", "width": "1920px", "height": "1080px",
+  "transform": "none",
+  "opacity": 1,
+  "overflow": "hidden"
 }
 ```
 
-**`GROUP`** — container element, can have nested `components` and optional clip paths
+**`GROUP`** — container/shape element with optional clip path
 
 ```json
 {
   "type": "GROUP",
-  "components": [ ... ],
-  "style": {
-    "left": "108px", "top": "463px", "width": "555px", "height": "508px",
-    "position": "absolute",
-    "background": "rgb(255, 255, 255)",
-    "clipPath": "path(\"M0,0 ...\")",
-    "transform": "scale(2.46, 2.46)"
-  }
+  "left": "108px", "top": "463px", "width": "555px", "height": "508px",
+  "background": "rgb(255, 255, 255)",
+  "backgroundColor": "rgb(255, 255, 255)",
+  "clipPath": "path(\"M0,0 ...\")",
+  "transform": "none"
 }
 ```
 
@@ -138,16 +146,6 @@ A JSON object keyed by template UUID. Each entry has the same fields (`descripti
 
 ---
 
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
-
-Python 3.9 or later is required.
-
----
-
 ## Quick start
 
 ```python
@@ -155,7 +153,7 @@ from lica_dataset import LicaDataset
 
 ds = LicaDataset("lica-data")
 print(ds)
-# LicaDataset(n=1185, categories=['Business Cards', 'Cards & Invitations', ...])
+# LicaDataset(n=1183, categories=['Business Cards', 'Cards & Invitations', ...])
 ```
 
 ### Inspect categories and metadata
@@ -201,13 +199,10 @@ square = ds.by_aspect_ratio("square")        # width == height
 ```python
 layout_id = "gsessHF2ev5r4ZgwPUh5"
 
-# Load the full layout JSON
+# Load the layout JSON
 layout = ds.get_layout(layout_id)
-print(layout["layout_config"]["style"]["background"])
-print(len(layout["layout_config"]["components"]))
-
-# Load just the layout_config (components + style + duration)
-config = ds.get_layout_config(layout_id)
+print(layout["background"])                # "rgb(252, 252, 252)"
+print(len(layout["components"]))           # number of components
 
 # Per-layout annotation
 annotation = ds.get_annotation(layout_id)
@@ -221,9 +216,6 @@ print(tmpl_ann["description"])
 img_path = ds.get_image_path(layout_id)
 print(img_path)
 # lica-data/images/3b919d2e-.../gsessHF2ev5r4ZgwPUh5.png
-
-# Public render URL
-print(ds.get_render_url(layout_id))
 
 # Single metadata row as a dict
 meta = ds.get_metadata(layout_id)
@@ -294,12 +286,10 @@ for template_id, group in iter_template_groups("lica-data"):
 
 | Method | Returns | Description |
 |---|---|---|
-| `.get_layout(layout_id)` | `dict` | Full layout JSON from `layouts/<template_id>/<layout_id>.json` |
-| `.get_layout_config(layout_id)` | `dict` | Only the `layout_config` portion (components + style + duration) |
+| `.get_layout(layout_id)` | `dict` | Layout JSON from `layouts/<template_id>/<layout_id>.json` |
 | `.get_annotation(layout_id)` | `dict` | Per-layout annotation from `annotations/<template_id>/<layout_id>.json` |
 | `.get_template_annotation(template_id)` | `dict` | Template-level annotation from `template_annotations.json` |
 | `.get_image_path(layout_id)` | `Path` | Path to `images/<template_id>/<layout_id>.png` |
-| `.get_render_url(layout_id)` | `str` | Public render URL from the layout JSON |
 | `.get_metadata(layout_id)` | `dict` | One metadata row as a dict |
 
 #### Properties
