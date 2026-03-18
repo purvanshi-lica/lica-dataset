@@ -68,13 +68,13 @@ Each layout file is a flat JSON object with the canvas specification and a list 
 }
 ```
 
-| Field | Type | Description |
-|---|---|---|
-| `components` | array | Ordered list of rendering components (see below) |
-| `background` | string | CSS color for the canvas background |
-| `width` | string | Canvas width with `"px"` suffix |
-| `height` | string | Canvas height with `"px"` suffix |
-| `duration` | number | Slide duration in seconds |
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `components` | array | yes | Ordered list of rendering components (see below) |
+| `width` | string | yes | Canvas width with `"px"` suffix |
+| `height` | string | yes | Canvas height with `"px"` suffix |
+| `background` | string | no | CSS color for the canvas background |
+| `duration` | number | no | Slide duration in seconds |
 
 #### Component types
 
@@ -201,7 +201,7 @@ layout_id = "gsessHF2ev5r4ZgwPUh5"
 
 # Load the layout JSON
 layout = ds.get_layout(layout_id)
-print(layout["background"])                # "rgb(252, 252, 252)"
+print(layout.get("background"))            # "rgb(252, 252, 252)" or None
 print(len(layout["components"]))           # number of components
 
 # Per-layout annotation

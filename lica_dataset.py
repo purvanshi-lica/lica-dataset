@@ -171,10 +171,12 @@ class LicaDataset:
         """
         Load and return the layout JSON for a given ID.
 
-        The returned dict contains:
+        The returned dict always contains:
         - ``components`` — flat list of TEXT, IMAGE, or GROUP elements
-        - ``background`` — CSS color string
         - ``width`` / ``height`` — canvas size (e.g. ``"1920px"``)
+
+        Optional keys (present in most layouts):
+        - ``background`` — CSS color string
         - ``duration`` — slide duration in seconds
 
         Parameters
