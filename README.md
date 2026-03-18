@@ -7,7 +7,7 @@ Layouts are organized by **template**: a template is a design theme that can pro
 
 ## Getting started
 
-1. Download the `lica-data` folder (link to download soon) and place it in the root of this repository so the structure looks like:
+1. Download the `lica-data` [folder](https://storage.googleapis.com/lica-assets/websites/blog/lica-data.zip) and place it in the root of this repository so the structure looks like:
 
 ```
 lica-dataset/
