@@ -39,7 +39,7 @@ lica-data/
 │       └── <layout_id>.json                  # component-level layout spec
 ├── images/
 │   └── <template_id>/
-│       └── <layout_id>.png                   # rendered layout image
+│       └── <layout_id>.png or .mp4           # rendered layout (image or video)
 └── annotations/
     ├── template_annotations.json             # template-level annotations
     └── <template_id>/
@@ -216,9 +216,9 @@ print(annotation["tags"])
 tmpl_ann = ds.get_template_annotation("3b919d2e-539f-4b2c-8d86-7709ef65b496")
 print(tmpl_ann["description"])
 
-# Path to the rendered image
-img_path = ds.get_image_path(layout_id)
-print(img_path)
+# Path to the render (PNG or MP4, whichever exists)
+render_path = ds.get_render_path(layout_id)
+print(render_path)
 # lica-data/images/3b919d2e-.../gsessHF2ev5r4ZgwPUh5.png
 
 # Single metadata row as a dict
@@ -238,7 +238,7 @@ for item in ds:
     layout           = item["layout"]               # layout JSON (or None if not on disk)
     annotation       = item["annotation"]           # per-layout annotation (or None)
     template_ann     = item["template_annotation"]  # template-level annotation (or None)
-    image_path       = item["image_path"]           # Path object
+    render_path      = item["render_path"]          # Path to PNG or MP4
 ```
 
 ### Module-level convenience functions
@@ -293,7 +293,8 @@ for template_id, group in iter_template_groups("lica-data"):
 | `.get_layout(layout_id)` | `dict` | Layout JSON from `layouts/<template_id>/<layout_id>.json` |
 | `.get_annotation(layout_id)` | `dict` | Per-layout annotation from `annotations/<template_id>/<layout_id>.json` |
 | `.get_template_annotation(template_id)` | `dict` | Template-level annotation from `template_annotations.json` |
-| `.get_image_path(layout_id)` | `Path` | Path to `images/<template_id>/<layout_id>.png` |
+| `.get_render_path(layout_id)` | `Path` | Path to the render file (PNG or MP4, whichever exists) |
+| `.get_image_path(layout_id)` | `Path` | Alias for `get_render_path` |
 | `.get_metadata(layout_id)` | `dict` | One metadata row as a dict |
 
 #### Properties
@@ -310,7 +311,7 @@ for template_id, group in iter_template_groups("lica-data"):
 | Method | Returns | Description |
 |---|---|---|
 | `len(ds)` | `int` | Number of layouts in the current view |
-| `ds[idx]` | `dict` | Fully-loaded item at integer index |
+| `ds[idx]` | `dict` | Fully-loaded item at integer index (includes `render_path`) |
 | `iter(ds)` | iterator | Iterate over all items in the view |
 | `.summary()` | `pd.DataFrame` | Grouped summary by category |
 

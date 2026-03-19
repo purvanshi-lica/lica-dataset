@@ -244,12 +244,12 @@ class LicaDataset:
             )
         return self._template_annotations[template_id]
 
-    def get_image_path(self, layout_id: str) -> Path:
+    def get_render_path(self, layout_id: str) -> Path:
         """
-        Return the ``Path`` to the PNG image for a given layout ID.
+        Return the ``Path`` to the rendered file (PNG or MP4) for a layout.
 
-        The image file lives at ``images/<template_id>/<layout_id>.png``.
-        It may not exist if the images have not been downloaded yet.
+        Checks for ``.png`` first, then ``.mp4``. Returns whichever exists.
+        If neither exists, returns the ``.png`` path as a default.
 
         Parameters
         ----------
@@ -257,7 +257,20 @@ class LicaDataset:
             The layout ID.
         """
         template_id = self._resolve_template_id(layout_id)
-        return self._root / "images" / template_id / f"{layout_id}.png"
+        base = self._root / "images" / template_id / layout_id
+        png = base.with_suffix(".png")
+        if png.exists():
+            return png
+        mp4 = base.with_suffix(".mp4")
+        if mp4.exists():
+            return mp4
+        return png
+
+    def get_image_path(self, layout_id: str) -> Path:
+        """
+        Alias for :meth:`get_render_path` (kept for backward compatibility).
+        """
+        return self.get_render_path(layout_id)
 
     def get_metadata(self, layout_id: str) -> dict:
         """
@@ -303,7 +316,8 @@ class LicaDataset:
         - ``layout`` — full layout JSON dict loaded from disk
         - ``annotation`` — per-layout annotation dict (or ``None``)
         - ``template_annotation`` — template-level annotation (or ``None``)
-        - ``image_path`` — ``Path`` to the PNG (may not exist yet)
+        - ``render_path`` — ``Path`` to the render (PNG or MP4)
+        - ``image_path`` — alias for ``render_path``
         """
         if idx < 0 or idx >= len(self._meta):
             raise IndexError(
@@ -327,6 +341,14 @@ class LicaDataset:
             with ann_path.open(encoding="utf-8") as fh:
                 annotation = json.load(fh)
 
+        # Resolve render path (PNG or MP4)
+        base = self._root / "images" / template_id / layout_id
+        render = base.with_suffix(".png")
+        if not render.exists():
+            mp4 = base.with_suffix(".mp4")
+            if mp4.exists():
+                render = mp4
+
         return {
             "layout_id": layout_id,
             "template_id": template_id,
@@ -334,7 +356,8 @@ class LicaDataset:
             "layout": layout,
             "annotation": annotation,
             "template_annotation": self._template_annotations.get(template_id),
-            "image_path": self._root / "images" / template_id / f"{layout_id}.png",
+            "render_path": render,
+            "image_path": render,
         }
 
     # ------------------------------------------------------------------
