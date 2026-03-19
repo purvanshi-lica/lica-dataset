@@ -1,9 +1,13 @@
 # LICA Dataset
 
-The **LICA dataset** is a collection of graphic design layouts, released to 
+The **LICA dataset** ([paper link](https://arxiv.org/pdf/2603.16098v1)) is a collection of graphic design layouts, released to 
 promote research in the field of AI for Design. Each layout captures the complete rendering specification of a design — component positions, typography, images, and background — alongside rich natural-language annotations at both the layout and template level.
 
 Layouts are organized by **template**: a template is a design theme that can produce multiple layout variations (slides). Each template folder contains all of its layouts, rendered images, and per-layout annotations.
+
+<p align="center">
+<img width="800" height="500" alt="Screenshot 2026-03-18 at 8 50 08 PM" src="https://github.com/user-attachments/assets/edee2b55-9ec9-49ac-bf3c-4bde21214f18" />
+</p>
 
 ## Getting started
 
