@@ -322,3 +322,9 @@ for template_id, group in iter_template_groups("lica-data"):
 | `load_layouts_by_template(data_root, template_id)` | List of layout dicts for a template, sorted by index |
 | `load_layouts_by_category(data_root, category)` | List of layout dicts for a category (on-disk only) |
 | `iter_template_groups(data_root)` | Yields `(template_id, LicaDataset)` for each template |
+
+## License
+
+This project is licensed under the Creative Commons Attribution 4.0 International License.
+
+[![CC BY 4.0](https://licensebuttons.net/l/by/4.0/88x31.png)](https://creativecommons.org/licenses/by/4.0/)
